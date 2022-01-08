@@ -108,6 +108,30 @@ class BookControllerTest {
     }
 
     @Test
-    void updateBookRecord() {
+    void updateBookRecord_success() throws Exception{
+        Book updatedRecord = Book.builder()
+                .bookId(1L)
+                .name("name1")
+                .summary("update_summary1")
+                .rating(1)
+                .build();
+
+        Mockito.when(bookRepository.findById(RECORD_1.getBookId()))
+                .thenReturn(Optional.ofNullable(RECORD_1));
+
+        Mockito.when(bookRepository.save(updatedRecord))
+                .thenReturn(updatedRecord);
+
+        String updatedContent = objectWriter.writeValueAsString(updatedRecord);
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .put("/book")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(updatedContent);
+
+        mockMvc.perform(mockRequest)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name",Matchers.is("name1")));
     }
 }
